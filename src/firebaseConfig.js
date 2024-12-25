@@ -5,7 +5,7 @@ import { initializeApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBnjIRy6Dke_1scQfWGf23Gm-Ezhytg2n0",
+  apiKey: FIREBASE_API_KEY,
   authDomain: "digital-task-tracker.firebaseapp.com",
   projectId: "digital-task-tracker",
   storageBucket: "digital-task-tracker.appspot.com",
