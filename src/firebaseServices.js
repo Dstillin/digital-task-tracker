@@ -5,27 +5,58 @@ const db = getFirestore(app);
 
 // Function to add a task
 export const addTask = async (task) => {
-    try {
-        // Ensure the due date is formatted as a Firestore Timestamp
-        const taskWithDefaults = {
-            ...task,
-            status: task.status || "Incomplete",
-            dueDate: task.dueDate ? Timestamp.fromDate(new Date(task.dueDate)) : null, // Adds due date if provided
-        };
-        await addDoc(collection(db, "tasks"), taskWithDefaults);
-    } catch (e) {
-        console.error("Error adding task: ", e);
+  try {
+    console.log("Due Date received:", task.dueDate);
+
+    let dueDate = null;
+
+    // Ensure task.dueDate is a valid string (for date input like yyyy-mm-dd)
+    if (task.dueDate && typeof task.dueDate === "string") {
+      // Create a Date object based on the input
+      const localDate = new Date(task.dueDate);
+
+      
+      localDate.setHours(0, 0, 0, 0);
+
+      console.log("Parsed Local Date:", localDate); // Log the parsed local date
+
+      
+      dueDate = Timestamp.fromDate(localDate);
+      console.log("Due date being saved:", dueDate);
+    } else if (task.dueDate instanceof Timestamp) {
+      
+      dueDate = task.dueDate;
     }
+
+    const taskWithDefaults = {
+      ...task,
+      status: task.status || "Incomplete",
+      dueDate: dueDate, // Store Firestore Timestamp
+    };
+
+    await addDoc(collection(db, "tasks"), taskWithDefaults); // Add task to Firestore
+  } catch (e) {
+    console.error("Error adding task: ", e);
+  }
 };
+
+
+
+
 // Function to retrieve tasks
 export const getTasks = async () => {
-    const tasksSnapshot = await getDocs(collection(db, "tasks"));
-    const tasksList = tasksSnapshot.docs.map(doc => ({
-      id: String(doc.id), // Ensure the ID is a string
-      ...doc.data(),
-    }));
-    return tasksList;
-  };
+  const tasksSnapshot = await getDocs(collection(db, "tasks"));
+  const tasksList = tasksSnapshot.docs.map(doc => {
+    const taskData = doc.data();
+    return {
+      id: doc.id,
+      ...taskData,
+      dueDate: taskData.dueDate ? taskData.dueDate.toDate().toLocaleDateString() : null, // Convert Timestamp to Date string
+    };
+  });
+  return tasksList;
+};
+
 
 // Function to update a task
 export const updateTask = async (taskId, updatedFields) => {
