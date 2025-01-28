@@ -11,6 +11,7 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDueDate, setNewTaskDueDate] = useState("");
+  const [newTaskPriority, setNewTaskPriority] = useState("Medium"); 
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -35,6 +36,7 @@ function App() {
         title: newTaskTitle,
         status: "To Do",
         dueDate: newTaskDueDate ? Timestamp.fromDate(newTaskDueDate) : null,
+        priority: newTaskPriority,
       };
 
       try {
@@ -42,7 +44,8 @@ function App() {
         const tasksFromDB = await getTasks();
         setTasks(tasksFromDB);
         setNewTaskTitle("");
-        setNewTaskDueDate(null); // Reset the date picker
+        setNewTaskDueDate(null); 
+        setNewTaskPriority("Medium");
       } catch (error) {
         console.error("Error adding task:", error);
       }
@@ -86,6 +89,15 @@ function App() {
           placeholderText="Select a due date"
           dateFormat="yyyy-MM-dd"
         />
+        <select
+        value={newTaskPriority}
+        onChange={(e) => setNewTaskPriority(e.target.value)}
+        className="border p-2 w-full mt-2"
+        >
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+        </select>
 
         <button onClick={addNewTask} className="bg-blue-500 text-white p-2 rounded mt-2">
           Add Task

@@ -21,18 +21,21 @@ const Task = ({ task, onDelete, onEdit }) => {
   const [editedDueDate, setEditedDueDate] = useState(
     task.dueDate ? new Date(task.dueDate) : null // Initialize as Date object
   );
+  const [editedPriority, setEditedPriority] = useState(task.priority || "Medium");
 
   const handleSave = async () => {
     const updatedTask = {
       ...task,
       title: editedTitle,
-      dueDate: editedDueDate, // Use Date object locally
+      dueDate: editedDueDate, 
+      priority: editedPriority,
     };
 
     try {
       await updateTask(task.id, {
         title: updatedTask.title,
-        dueDate: editedDueDate ? Timestamp.fromDate(editedDueDate) : null, // Save as Timestamp
+        dueDate: editedDueDate ? Timestamp.fromDate(editedDueDate) : null, 
+        priority: updatedTask.priority,
       });
       setIsEditing(false); // Exit editing mode
       onEdit(updatedTask); // Notify parent of changes
@@ -44,13 +47,20 @@ const Task = ({ task, onDelete, onEdit }) => {
   const handleCancel = () => {
     setEditedTitle(task.title);
     setEditedDueDate(task.dueDate ? new Date(task.dueDate) : null);
+    setEditedPriority(task.priority || "Medium");
     setIsEditing(false);
+  };
+
+  const priorityColors = {
+    High: "bg-red-100 border-red-400",
+    Medium: "bg-yellow-100 border-yellow-400",
+    Low: "bg-green-100 border-green-400",
   };
 
   return (
     <motion.div
       ref={ref}
-      className="bg-white p-2 mb-2 shadow rounded flex justify-between"
+      className={`p-2 mb-2 shadow rounded border ${priorityColors[task.priority]}`}
       style={{ cursor: "move" }}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -66,6 +76,7 @@ const Task = ({ task, onDelete, onEdit }) => {
               ? new Date(task.dueDate).toLocaleDateString()
               : "No Due Date"}
           </p>
+          <p className="text-gray-700 text-sm">Priority: {task.priority}</p>
         </div>
       ) : (
         <div>
@@ -83,6 +94,15 @@ const Task = ({ task, onDelete, onEdit }) => {
             placeholderText="Select a due date"
             dateFormat="yyyy-MM-dd"
           />
+          <select
+            value={editedPriority}
+            onChange={(e) => setEditedPriority(e.target.value)}
+            className="border p-1 rounded mb-2 w-full"
+          >
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
         </div>
       )}
 
